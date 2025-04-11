@@ -1,0 +1,192 @@
+/* Estilos básicos para integrar PrimeReact con Bootstrap */
+.p-datatable {
+    width: 100%;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    font-family: inherit;
+}
+
+/* Arreglar el tamaño del DataTable */
+.p-datatable-wrapper {
+    overflow-x: auto;
+}
+
+/* Encabezado de columnas */
+.p-datatable .p-datatable-thead>tr>th {
+    background-color: #f8f9fa;
+    color: #212529;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+/* Filas de la tabla */
+.p-datatable .p-datatable-tbody>tr {
+    background-color: #fff;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.p-datatable .p-datatable-tbody>tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.p-datatable .p-datatable-tbody>tr:hover {
+    background-color: #f1f3f5;
+}
+
+/* Celdas de la tabla */
+.p-datatable .p-datatable-tbody>tr>td {
+    padding: 0.75rem 1rem;
+    border: none;
+    vertical-align: middle;
+    height: 60px;
+    /* Altura fija para todas las celdas */
+}
+
+/* Contenedor de botones de acción */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilo unificado para los botones de acción */
+.action-button {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 3px !important;
+    border: none !important;
+    transition: all 0.2s !important;
+}
+
+.action-button i {
+    font-size: 1rem !important;
+}
+
+/* Botones específicos con sus colores */
+.view-button {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+.view-button:hover {
+    background-color: #157347 !important;
+}
+
+.edit-button {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+.edit-button:hover {
+    background-color: #0b5ed7 !important;
+}
+
+.delete-button {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.delete-button:hover {
+    background-color: #bb2d3b !important;
+}
+
+/* Estilo para el botón de Nueva Categoría */
+.btn-primary {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 500 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7 !important;
+    border-color: #0b5ed7 !important;
+}
+
+/* Estilos para el modal */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem 1.5rem;
+}
+
+.modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.modal-body {
+    padding: 1.5rem !important;
+}
+
+/* Mejorar el formulario dentro del modal */
+.form-control {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Botones en el formulario de edición */
+.btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a !important;
+    border-color: #5c636a !important;
+}
+
+/* Asegurar que la tabla ocupe el ancho completo */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+    border-collapse: collapse;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+    .action-button {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .action-button i {
+        font-size: 0.875rem !important;
+    }
+
+    .p-datatable .p-datatable-tbody>tr>td {
+        padding: 0.5rem;
+    }
+}
+
+/* Corrección específica para mensajes de error */
+.form-control.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}

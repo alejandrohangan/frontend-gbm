@@ -1,0 +1,42 @@
+/* Resetear márgenes y padding del body */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial,
+    sans-serif;
+}
+
+/* Ajustes para la tabla */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  font-weight: 500;
+  border-top: none;
+  background-color: #f8f9fa;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.table td {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  vertical-align: middle;
+}
+
+/* Ajustes para el contenedor principal */
+.container {
+  max-width: 1200px;
+}
+
+/* Ajustes para los botones */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+}
+
+/* Ajustes para las cards */
+.card {
+  overflow: hidden;
+}
