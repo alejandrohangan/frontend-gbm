@@ -19,11 +19,9 @@ const CategoryEdit = ({ categoryId, onClose, onSave }) => {
         console.log('CategoryEdit - useEffect - categoryId:', categoryId);
 
         if (categoryId) {
-            console.log('CategoryEdit - Entrando en modo edición');
             setIsEditing(true);
             fetchCategoryData();
         } else {
-            console.log('CategoryEdit - Modo creación');
             setFormData(initialFormData);
             setIsEditing(false);
         }
@@ -88,22 +86,16 @@ const CategoryEdit = ({ categoryId, onClose, onSave }) => {
     // Manejar envío del formulario
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('CategoryEdit - handleSubmit - Enviando formData:', formData);
-
         try {
             setIsLoading(true);
             setErrors({});
 
             let response;
             if (isEditing) {
-                console.log('CategoryEdit - handleSubmit - Actualizando categoría:', categoryId);
                 response = await CategoryService.update(categoryId, formData);
             } else {
-                console.log('CategoryEdit - handleSubmit - Creando categoría');
                 response = await CategoryService.create(formData);
             }
-
-            console.log('CategoryEdit - handleSubmit - Respuesta:', response);
 
             if (response.success) {
                 (isEditing) ? toast.success('Categoria Actualizada correctamente') : toast.success('Categoria Guardada Correctamente');

@@ -30,6 +30,10 @@ const TicketService = {
         return apiService.request('put', `/tickets/${id}/status`, { status });
     },
 
+    getUserTickets: async () => {
+        return apiService.request('get', `userTickets`);
+    }
+
 };
 
 export default TicketService;

@@ -1,45 +1,39 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate, BrowserRouter } from "react-router-dom"
 import MainLayout from "./layouts/MainLayout"
 import Ticket from "./pages/tickets/Ticket"
 import Category from "./pages/categories/Category"
 import Priority from "./pages/priorities/Priority"
 import Tag from "./pages/tags/Tag"
 import { Toaster } from "react-hot-toast"
+import Login from "./pages/auth/Login"
+import { AuthProvider } from "./contexts/AuthContext"
+import UserTickets from "./pages/tickets/UserTickets"
 
 function App() {
   return (
     <>
       <Toaster position="bottom-right" />
-      <Router>
-        <Routes>
-          {/* Redirigir a /categories por defecto */}
-          <Route path="/" element={<Navigate to="/categories" replace />} />
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            {/* Redirigir a /categories por defecto */}
+            <Route path="/" element={<Navigate to="/categories" replace />} />
 
-          {/* Rutas dentro del layout principal */}
-          <Route element={<MainLayout />}>
-            {/* Categorías */}
-            
-            <Route path="/tickets" element={<Ticket />} />
-            <Route path="/categories" element={<Category/>} />
-            <Route path="/priorities" element={<Priority/>} />
-            <Route path="/tags" element={<Tag/>} />
+            {/* Rutas dentro del layout principal */}
+            <Route element={<MainLayout />}>
+              <Route path="/tickets" element={<Ticket />} />
+              <Route path="/categories" element={<Category />} />
+              <Route path="/priorities" element={<Priority />} />
+              <Route path="/tags" element={<Tag />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard" element={<UserTickets/>} />
 
-
-            {/* Otras rutas existentes */}
-            <Route path="/open" element={<Section title="Open Tickets" />} />
-            <Route path="/solved" element={<Section title="Solved Tickets" />} />
-            <Route path="/closed" element={<Section title="Closed Tickets" />} />
-            <Route path="/pending" element={<Section title="Pending Tickets" />} />
-            <Route path="/unassigned" element={<Section title="Unassigned Tickets" />} />
-            <Route path="/my-tickets" element={<Section title="My Tickets" />} />
-            <Route path="/teams" element={<Section title="Teams" />} />
-            <Route path="/management" element={<Section title="Management" />} />
-
-            {/* Ruta para capturar cualquier otra URL y redirigir a /categories */}
-            <Route path="*" element={<Navigate to="/categories" replace />} />
-          </Route>
-        </Routes>
-      </Router>
+              {/* Ruta para capturar cualquier otra URL */}
+              <Route path="*" element={<Navigate to="/categories" replace />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
     </>
   )
 }

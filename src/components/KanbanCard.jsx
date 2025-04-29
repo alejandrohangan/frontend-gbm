@@ -52,7 +52,7 @@ function KanbanCard({ ticket }) {
                         {ticket.priority?.name}
                     </span>
                 </div>
-
+                
                 <div className="mt-2 pt-2 border-top">
                     <div className="small text-muted text-truncate">
                         {ticket.agent?.name || "Sin asignar"}
