@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast"
 import Login from "./pages/auth/Login"
 import { AuthProvider } from "./contexts/AuthContext"
 import UserTickets from "./pages/tickets/UserTickets"
+import AssignTicket from "./pages/tickets/AssignTicket"
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
               <Route path="/tags" element={<Tag />} />
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<UserTickets/>} />
+              <Route path="/assign" element={<AssignTicket/>} />
 
               {/* Ruta para capturar cualquier otra URL */}
               <Route path="*" element={<Navigate to="/categories" replace />} />

@@ -32,6 +32,10 @@ const TicketService = {
 
     getUserTickets: async () => {
         return apiService.request('get', `userTickets`);
+    },
+
+    getOpenTickets: async () => {
+        return apiService.request('get',`openTickets`);
     }
 
 };
