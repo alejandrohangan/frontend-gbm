@@ -9,6 +9,7 @@ import Login from "./pages/auth/Login"
 import { AuthProvider } from "./contexts/AuthContext"
 import UserTickets from "./pages/tickets/UserTickets"
 import AssignTicket from "./pages/tickets/AssignTicket"
+import Prueba from "./pages/Prueba"
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<UserTickets/>} />
               <Route path="/assign" element={<AssignTicket/>} />
+              <Route path="/prueba" element={<Prueba/>} />
 
               {/* Ruta para capturar cualquier otra URL */}
               <Route path="*" element={<Navigate to="/categories" replace />} />

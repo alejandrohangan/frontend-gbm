@@ -103,7 +103,6 @@ export default function DashboardHeader() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const navigate = useNavigate()
   const { logout } = useAuth()
 
   const handleLogout = async () => {
