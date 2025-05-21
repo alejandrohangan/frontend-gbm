@@ -10,7 +10,7 @@ import { AuthProvider } from "./contexts/AuthContext"
 import UserTickets from "./pages/tickets/UserTickets"
 import AssignTicket from "./pages/tickets/AssignTicket"
 import Prueba from "./pages/Prueba"
-import MessagingLayout from "./components/messaging/MessagingLayout"
+import InboxMessages from "./pages/messaging/InboxMessages"
 
 function App() {
   return (
@@ -32,7 +32,7 @@ function App() {
               <Route path="/dashboard" element={<UserTickets/>} />
               <Route path="/assign" element={<AssignTicket/>} />
               <Route path="/prueba" element={<Prueba/>} />
-              <Route path="/messages" element={<MessagingLayout/>} />
+              <Route path="/messages" element={<InboxMessages/>} />
 
 
               {/* Ruta para capturar cualquier otra URL */}
