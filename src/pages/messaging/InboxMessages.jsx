@@ -87,10 +87,9 @@ function InboxMessages() {
       return; // Early return if any dependency is missing
     }
 
-    const channel = echo.private(`chat.${selectedUser.id}`);
+    const channel = echo.private(`chat.${authUser.id}`);
 
     channel.listen('.message.received', async () => {
-      alert("Mensaje recibido")
       await getMessages();
     });
 
