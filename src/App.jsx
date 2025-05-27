@@ -11,6 +11,7 @@ import UserTickets from "./pages/tickets/UserTickets"
 import AssignTicket from "./pages/tickets/AssignTicket"
 import Prueba from "./pages/Prueba"
 import InboxMessages from "./pages/messaging/InboxMessages"
+import Role from "./pages/roles/Role"
 
 function App() {
   return (
@@ -33,7 +34,7 @@ function App() {
               <Route path="/assign" element={<AssignTicket/>} />
               <Route path="/prueba" element={<Prueba/>} />
               <Route path="/messages" element={<InboxMessages/>} />
-
+              <Route path="/roles" element={<Role/>} />
 
               {/* Ruta para capturar cualquier otra URL */}
               <Route path="*" element={<Navigate to="/categories" replace />} />
