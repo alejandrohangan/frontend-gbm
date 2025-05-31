@@ -51,7 +51,7 @@ const Priority = () => {
 
     const handleCloseModal = () => {
         setShowEditMode(false);
-        setTimeout(() => setSelectedPriorityId(null), 300);
+        setSelectedPriorityId(null);
     };
 
     const handleSavePriority = () => {

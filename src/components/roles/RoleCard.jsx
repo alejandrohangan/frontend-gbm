@@ -4,7 +4,7 @@ import { Eye, Trash2 } from 'react-bootstrap-icons';
 
 function RoleCard({ role }) {
 
-    const { id, name, total_permissions, handleViewPermissions } = role;
+    const { name, total_permissions, handleViewPermissions, handleManageUsers, handleEditRole, handleDeleteRole } = role;
 
     return (
         <div className="card shadow-sm h-100" style={{ transition: 'box-shadow 0.2s ease' }}>
@@ -19,6 +19,7 @@ function RoleCard({ role }) {
                         <button
                             className="btn btn-sm btn-outline-light text-muted me-1 rounded-circle p-2"
                             title="Edit role"
+                            onClick={handleEditRole}
                             style={{
                                 '--bs-btn-hover-color': '#6366f1',
                                 '--bs-btn-hover-bg': '#f0f9ff',
@@ -30,6 +31,7 @@ function RoleCard({ role }) {
                         <button
                             className="btn btn-sm btn-outline-light text-muted rounded-circle p-2"
                             title="Delete role"
+                            onClick={handleDeleteRole}
                             style={{
                                 '--bs-btn-hover-color': '#dc3545',
                                 '--bs-btn-hover-bg': '#fdf2f2',
@@ -51,6 +53,7 @@ function RoleCard({ role }) {
             <div className="card-footer bg-light border-top d-flex justify-content-between">
                 <button
                     className="btn btn-outline-secondary btn-sm d-flex align-items-center"
+                    onClick={handleManageUsers}
                 >
                     <Users size={16} className="me-1" />
                     Manage Users
