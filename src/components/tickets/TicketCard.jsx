@@ -4,7 +4,7 @@ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
 };
 
-function TicketCard({ ticket, isAssignMode = false }) {
+function TicketCard({ ticket, isAssignMode = false, handleEdit }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -24,10 +24,10 @@ function TicketCard({ ticket, isAssignMode = false }) {
 
     const getPriorityColor = () => {
         switch (ticket.priority) {
-            case "Crítica": return "#f87171";
-            case "Alta": return "#fb923c";
-            case "Media": return "#60a5fa";
-            case "Baja": return "#4ade80";
+            case "urgent": return "#f87171";
+            case "high": return "#fb923c";
+            case "medium": return "#60a5fa";
+            case "low": return "#4ade80";
             default: return "#4ade80";
         }
     };
@@ -35,16 +35,35 @@ function TicketCard({ ticket, isAssignMode = false }) {
     const getStatusClass = () => {
         switch (ticket.status) {
             case 'open': return 'bg-warning bg-opacity-25 text-warning';
-            case 'in-progress': return 'bg-primary bg-opacity-25 text-primary';
+            case 'in_progress': return 'bg-primary bg-opacity-25 text-primary';
+            case 'resolved': return 'bg-success bg-opacity-25 text-success';
             case 'closed': return 'bg-secondary bg-opacity-25 text-secondary';
-            case 'on_hold': return 'bg-orange bg-opacity-25 text-orange';
+            case 'on_hold': return 'bg-info bg-opacity-25 text-info';
             case 'cancelled': return 'bg-danger bg-opacity-25 text-danger';
             default: return 'bg-secondary bg-opacity-25 text-secondary';
         }
     };
 
     const formatStatus = (status) => {
-        return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
+        const statusMap = {
+            'open': 'Abierto',
+            'in_progress': 'En Progreso',
+            'resolved': 'Resuelto',
+            'closed': 'Cerrado',
+            'on_hold': 'En Espera',
+            'cancelled': 'Cancelado'
+        };
+        return statusMap[status] || status;
+    };
+
+    const formatPriority = (priority) => {
+        const priorityMap = {
+            'low': 'Baja',
+            'medium': 'Media',
+            'high': 'Alta',
+            'urgent': 'Urgente'
+        };
+        return priorityMap[priority] || priority;
     };
 
     return (
@@ -58,6 +77,9 @@ function TicketCard({ ticket, isAssignMode = false }) {
                         </span>
                         <span className={`badge ${getStatusClass()}`}>
                             {formatStatus(ticket.status)}
+                        </span>
+                        <span className="badge bg-light text-dark">
+                            {formatPriority(ticket.priority)}
                         </span>
                     </div>
 
@@ -91,7 +113,11 @@ function TicketCard({ ticket, isAssignMode = false }) {
                             )}
                         </div>
                     ) : (
-                        <button className="btn btn-sm btn-link text-primary p-0">
+                        <button
+                            className="btn btn-sm btn-link text-primary p-0"
+                            onClick={handleEdit}
+                            title="Editar ticket"
+                        >
                             <i className="bi bi-pencil"></i>
                         </button>
                     )}
@@ -101,9 +127,39 @@ function TicketCard({ ticket, isAssignMode = false }) {
                     {ticket.title}
                 </h5>
 
-                <p className="card-text text-secondary small mb-3 text-truncate">
+                <p className="card-text text-secondary small mb-3" style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                }}>
                     {ticket.description}
                 </p>
+
+                {/* Mostrar categoría si existe */}
+                {ticket.category && (
+                    <div className="mb-2">
+                        <span className="badge bg-info bg-opacity-25 text-info">
+                            {ticket.category.name}
+                        </span>
+                    </div>
+                )}
+
+                {/* Mostrar tags si existen */}
+                {ticket.tags && ticket.tags.length > 0 && (
+                    <div className="mb-3">
+                        {ticket.tags.slice(0, 3).map(tag => (
+                            <span key={tag.id} className="badge bg-secondary me-1 mb-1">
+                                {tag.name}
+                            </span>
+                        ))}
+                        {ticket.tags.length > 3 && (
+                            <span className="badge bg-light text-dark">
+                                +{ticket.tags.length - 3}
+                            </span>
+                        )}
+                    </div>
+                )}
 
                 <div className="d-flex justify-content-between align-items-center text-secondary small border-top pt-3">
                     <div className="d-flex align-items-center">

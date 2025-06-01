@@ -12,9 +12,7 @@ const TicketService = {
     
     close: async (id) => {
         try {
-            console.log(`Calling API endpoint: /tickets/${id}/close`);
             const result = await apiService.request("put", `/tickets/${id}/close`);
-            console.log("API result:", result);
             return { success: true, data: result, message: "Ticket cerrado correctamente" };
         } catch (error) {
             console.error("API error:", error);
@@ -36,8 +34,11 @@ const TicketService = {
 
     getOpenTickets: async () => {
         return apiService.request('get',`openTickets`);
-    }
+    },
 
+    getReferenceData: async () => {
+        return apiService.request('get', 'tickets-referenceData');
+    }
 };
 
 export default TicketService;
