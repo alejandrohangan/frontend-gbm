@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, Badge, Row, Col, Card } from 'react-bootstrap';
+import { Spinner, Badge, Row, Col, Card, Button } from 'react-bootstrap';
 import TicketService from '../../services/TicketService';
 
 const ViewTicket = ({ ticketId }) => {
@@ -30,6 +30,17 @@ const ViewTicket = ({ ticketId }) => {
 
         fetchTicketDetails();
     }, [ticketId]);
+
+    const handleDownload = (attachment) => {
+        try {
+            const baseURL = import.meta.env.VITE_API_URL;
+            const downloadUrl = `${baseURL}/attachments/${attachment.id}/download`;
+            window.location.href = downloadUrl;
+        } catch (error) {
+            console.error('Error al descargar archivo:', error);
+            alert('Error al descargar el archivo. Inténtalo de nuevo.');
+        }
+    };
 
     const renderStatus = (status) => {
         let variant;
@@ -66,6 +77,36 @@ const ViewTicket = ({ ticketId }) => {
                 {typeof tag === 'string' ? tag : tag.name}
             </Badge>
         ));
+    };
+
+    const renderAttachments = (attachments) => {
+        if (!attachments || attachments.length === 0) {
+            return (
+                <div className="text-center text-muted p-3">
+                    No existen archivos adjuntos para este ticket
+                </div>
+            );
+        }
+
+        return (
+            <div>
+                {attachments.map((attachment, index) => (
+                    <div key={index} className="d-flex justify-content-between align-items-center p-3 border-bottom">
+                        <div className="d-flex align-items-center">
+                            <i className="bi bi-file-earmark me-3"></i>
+                            <span>{attachment.filename || attachment.name || `Archivo ${index + 1}`}</span>
+                        </div>
+                        <Button
+                            variant="outline-primary"
+                            size="sm"
+                            onClick={() => handleDownload(attachment)}
+                        >
+                            Descargar
+                        </Button>
+                    </div>
+                ))}
+            </div>
+        );
     };
 
     if (loading) {
@@ -169,6 +210,19 @@ const ViewTicket = ({ ticketId }) => {
                 </Col>
             </Row>
 
+            <Row className="mb-4">
+                <Col>
+                    <Card>
+                        <Card.Header>
+                            Archivos Adjuntos ({ticket.attachments?.length || 0})
+                        </Card.Header>
+                        <Card.Body className="p-0">
+                            {renderAttachments(ticket.attachments)}
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
+
             <Row>
                 <Col>
                     <Card>
@@ -179,31 +233,6 @@ const ViewTicket = ({ ticketId }) => {
                     </Card>
                 </Col>
             </Row>
-
-            {ticket.comments && ticket.comments.length > 0 && (
-                <Row className="mt-4">
-                    <Col>
-                        <Card>
-                            <Card.Header>Comentarios</Card.Header>
-                            <Card.Body className="p-0">
-                                <div className="list-group list-group-flush">
-                                    {ticket.comments.map((comment, index) => (
-                                        <div key={index} className="list-group-item">
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <strong>{comment.author?.name}</strong>
-                                                <small className="text-muted">
-                                                    {new Date(comment.createdAt).toLocaleString()}
-                                                </small>
-                                            </div>
-                                            <p className="mb-0 mt-2">{comment.content}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            )}
         </div>
     );
 };
