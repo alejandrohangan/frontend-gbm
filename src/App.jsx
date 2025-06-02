@@ -7,12 +7,12 @@ import Tag from "./pages/tags/Tag"
 import { Toaster } from "react-hot-toast"
 import Login from "./pages/auth/Login"
 import { AuthProvider, useAuth } from "./contexts/AuthContext"
-import UserTickets from "./pages/tickets/UserTickets"
 import AssignTicket from "./pages/tickets/AssignTicket"
 import Prueba from "./pages/Prueba"
 import InboxMessages from "./pages/messaging/InboxMessages"
 import Role from "./pages/roles/Role"
 import ProtectedRoute from "./components/auth/ProtectedRoute"
+import UserTickets from "./pages/home/UserTickets"
 
 function App() {
   return (
