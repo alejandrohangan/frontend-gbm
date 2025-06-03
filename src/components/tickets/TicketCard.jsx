@@ -23,10 +23,15 @@ function TicketCard({ ticket, isAssignMode = false, handleEdit }) {
     }, []);
 
     const getPriorityColor = () => {
-        switch (ticket.priority) {
+        const priorityName = ticket.priority?.name?.toLowerCase() || 'low';
+        switch (priorityName) {
+            case "urgente": 
             case "urgent": return "#f87171";
+            case "alta":
             case "high": return "#fb923c";
+            case "media":
             case "medium": return "#60a5fa";
+            case "baja":
             case "low": return "#4ade80";
             default: return "#4ade80";
         }
@@ -79,7 +84,7 @@ function TicketCard({ ticket, isAssignMode = false, handleEdit }) {
                             {formatStatus(ticket.status)}
                         </span>
                         <span className="badge bg-light text-dark">
-                            {formatPriority(ticket.priority)}
+                            {ticket.priority?.name || 'Sin prioridad'}
                         </span>
                     </div>
 
@@ -137,7 +142,7 @@ function TicketCard({ ticket, isAssignMode = false, handleEdit }) {
                 </p>
 
                 {/* Mostrar categoría si existe */}
-                {ticket.category && (
+                {ticket.category?.name && (
                     <div className="mb-2">
                         <span className="badge bg-info bg-opacity-25 text-info">
                             {ticket.category.name}
@@ -146,7 +151,7 @@ function TicketCard({ ticket, isAssignMode = false, handleEdit }) {
                 )}
 
                 {/* Mostrar tags si existen */}
-                {ticket.tags && ticket.tags.length > 0 && (
+                {ticket.tags && Array.isArray(ticket.tags) && ticket.tags.length > 0 && (
                     <div className="mb-3">
                         {ticket.tags.slice(0, 3).map(tag => (
                             <span key={tag.id} className="badge bg-secondary me-1 mb-1">
