@@ -1,3 +1,5 @@
+"use client"
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import MainLayout from "./layouts/MainLayout"
 import Ticket from "./pages/tickets/Ticket"
@@ -12,8 +14,7 @@ import Prueba from "./pages/Prueba"
 import InboxMessages from "./pages/messaging/InboxMessages"
 import Role from "./pages/roles/Role"
 import ProtectedRoute from "./components/auth/ProtectedRoute"
-import UserTickets from "./pages/home/UserTickets"
-import AdminDashboard from "./pages/home/AdminDashboard"
+import Dashboard from "./pages/home/Dashboard"
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
         <AuthProvider>
           <Routes>
             {/* Ruta pública de login */}
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<LoginRoute />} />
 
             {/* Rutas protegidas dentro del layout principal */}
             <Route
@@ -33,22 +34,21 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route path="/tickets" element={<Ticket />} />
-              <Route path="/categories" element={<Category />} />
-              <Route path="/priorities" element={<Priority />} />
-              <Route path="/tags" element={<Tag />} />
-              <Route path="/dashboard" element={<AdminDashboard />} />
-              <Route path="/assign" element={<AssignTicket />} />
-              <Route path="/prueba" element={<Prueba />} />
-              <Route path="/messages" element={<InboxMessages />} />
-              <Route path="/roles" element={<Role />} />
+              {/* Dashboard como ruta por defecto después del login */}
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="tickets" element={<Ticket />} />
+              <Route path="categories" element={<Category />} />
+              <Route path="priorities" element={<Priority />} />
+              <Route path="tags" element={<Tag />} />
+              <Route path="assign" element={<AssignTicket />} />
+              <Route path="prueba" element={<Prueba />} />
+              <Route path="messages" element={<InboxMessages />} />
+              <Route path="roles" element={<Role />} />
             </Route>
 
-            {/* Redirigir la raíz según el estado de autenticación */}
-            <Route path="/" element={<RootRedirect />} />
-
-            {/* Ruta para capturar cualquier otra URL */}
-            <Route path="*" element={<NotFoundRedirect />} />
+            {/* Capturar cualquier otra URL */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </Router>
@@ -56,26 +56,16 @@ function App() {
   )
 }
 
-// Componente para manejar la redirección de la raíz
-const RootRedirect = () => {
-  const { isAuthenticated } = useAuth();
+// Componente para manejar el login y evitar acceso si ya está autenticado
+const LoginRoute = () => {
+  const { isAuthenticated } = useAuth()
 
+  // Si ya está autenticado, redirigir al dashboard
   if (isAuthenticated) {
-    return <Navigate to="/categories" replace />;
-  } else {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />
   }
-};
 
-// Componente para manejar rutas no encontradas
-const NotFoundRedirect = () => {
-  const { isAuthenticated } = useAuth();
+  return <Login />
+}
 
-  if (isAuthenticated) {
-    return <Navigate to="/categories" replace />;
-  } else {
-    return <Navigate to="/login" replace />;
-  }
-};
-
-export default App
+export default App;
