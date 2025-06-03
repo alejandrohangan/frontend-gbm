@@ -1,8 +1,11 @@
-import GenericService from "./GenericService";
 import apiService from "./apiService";
+import GenericService from "./GenericService";
 
 const DashboardService = {
-    getAll: () => GenericService.getAll("/dashboard"),
+    
+    getData: async () => {
+        return apiService.request('get', '/dashboard');
+    }
 };
 
 export default DashboardService;

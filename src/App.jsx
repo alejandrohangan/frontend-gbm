@@ -13,6 +13,7 @@ import InboxMessages from "./pages/messaging/InboxMessages"
 import Role from "./pages/roles/Role"
 import ProtectedRoute from "./components/auth/ProtectedRoute"
 import UserTickets from "./pages/home/UserTickets"
+import AdminDashboard from "./pages/home/AdminDashboard"
 
 function App() {
   return (
@@ -36,7 +37,7 @@ function App() {
               <Route path="/categories" element={<Category />} />
               <Route path="/priorities" element={<Priority />} />
               <Route path="/tags" element={<Tag />} />
-              <Route path="/dashboard" element={<UserTickets />} />
+              <Route path="/dashboard" element={<AdminDashboard />} />
               <Route path="/assign" element={<AssignTicket />} />
               <Route path="/prueba" element={<Prueba />} />
               <Route path="/messages" element={<InboxMessages />} />

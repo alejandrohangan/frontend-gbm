@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import DashboardService from '../../services/DashboardService';
-import { StatsCard } from '../components/dashboard/StatsCard';
-import { TicketChart } from '../components/dashboard/TicketChart';
-import { RecentTickets } from '../components/dashboard/RecentTickets';
-import { PriorityDistribution } from '../components/dashboard/PriorityDistribution';
+import StatsCard from '../../components/dashboard/StatsCard';
 import {
     AlertCircle,
     CheckCircle2,
     Clock,
-    UserCog
+    Loader2
 } from 'lucide-react';
+import { PriorityDistribution } from '../../components/dashboard/PriorityDistribution';
+import { CategoryDistribution } from '../../components/dashboard/CategoryDistribution';
+import RecentTickets from '../../components/dashboard/RecentTickets';
 
 function AdminDashboard() {
     const [dashboardData, setDashboardData] = useState({
         stats: {},
-        ticketTrends: [],
         priorityDistribution: [],
+        categoryDistribution: [],
         recentTickets: []
     });
     const [loading, setLoading] = useState(true);
@@ -24,21 +24,15 @@ function AdminDashboard() {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const response = await DashboardService.getAll();
-            if (response?.data) {
-                // Calcular porcentajes para distribución de prioridades
-                const totalTickets = response.data.priorityDistribution.reduce(
-                    (sum, item) => sum + item.count, 0
-                );
+            const response = await DashboardService.getData();
+            console.log(response);
 
-                const priorityWithPercentages = response.data.priorityDistribution.map(item => ({
-                    ...item,
-                    percentage: totalTickets > 0 ? Math.round((item.count / totalTickets) * 100) : 0
-                }));
-
+            if (response) {
                 setDashboardData({
-                    ...response.data,
-                    priorityDistribution: priorityWithPercentages
+                    stats: response.stats || {},
+                    priorityDistribution: response.priorityDistribution || [],
+                    categoryDistribution: response.categoryDistribution || [],
+                    recentTickets: response.recentTickets || []
                 });
             }
         } catch (err) {
@@ -53,68 +47,97 @@ function AdminDashboard() {
         fetchData();
     }, []);
 
-    if (loading) return <div className="flex justify-center items-center h-64">Loading...</div>;
-    if (error) return <div className="text-red-500 text-center">{error}</div>;
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '16rem' }}>
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
 
-    const { stats, ticketTrends, priorityDistribution, recentTickets } = dashboardData;
+    if (error) {
+        return (
+            <div className="alert alert-danger text-center" role="alert">
+                {error}
+            </div>
+        );
+    }
+
+    const { stats, ticketTrends, priorityDistribution, categoryDistribution, recentTickets } = dashboardData;
 
     return (
-        <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p className="mt-1 text-sm text-gray-500">
+        <div className="container-fluid py-4">
+            <div className="mb-4">
+                <h1 className="h2 fw-bold text-dark">Dashboard</h1>
+                <p className="text-muted small mb-0">
                     Overview of your incident management system
                 </p>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <StatsCard
-                    title="Open Tickets"
-                    value={stats.openTickets || 0}
-                    icon={<AlertCircle className="text-amber-500" />}
-                />
-                <StatsCard
-                    title="Resolved"
-                    value={stats.resolvedTickets || 0}
-                    icon={<CheckCircle2 className="text-green-500" />}
-                />
-                <StatsCard
-                    title="High Priority"
-                    value={stats.highPriorityTickets || 0}
-                    icon={<Clock className="text-red-500" />}
-                />
-                <StatsCard
-                    title="Active Agents"
-                    value={stats.activeAgents || 0}
-                    icon={<UserCog className="text-indigo-500" />}
-                />
-            </div>
-
-            {/* Gráficos */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-lg font-medium mb-4 text-gray-900">Ticket Trends</h2>
-                    <TicketChart data={ticketTrends} />
+            <div className="row g-4 mb-4">
+                <div className="col-12 col-sm-6 col-lg-3">
+                    <StatsCard
+                        title="Open Tickets"
+                        value={stats.openTickets || 0}
+                        icon={<AlertCircle className="text-warning" />}
+                    />
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-lg font-medium mb-4 text-gray-900">Priority Distribution</h2>
-                    <PriorityDistribution data={priorityDistribution} />
+                <div className="col-12 col-sm-6 col-lg-3">
+                    <StatsCard
+                        title="Closed"
+                        value={stats.closedTickets || 0}
+                        icon={<CheckCircle2 className="text-success" />}
+                    />
+                </div>
+                <div className="col-12 col-sm-6 col-lg-3">
+                    <StatsCard
+                        title="High Priority"
+                        value={stats.highPriorityTickets || 0}
+                        icon={<Clock className="text-danger" />}
+                    />
+                </div>
+                <div className="col-12 col-sm-6 col-lg-3">
+                    <StatsCard
+                        title="In Progress"
+                        value={stats.inProgressTickets || 0}
+                        icon={<Loader2 className="text-primary" />}
+                    />
                 </div>
             </div>
 
-            {/* Tickets Recientes */}
-            <div className="bg-white p-6 rounded-lg shadow">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-medium text-gray-900">Recent Tickets</h2>
-                    <a
-                        href="/tickets"
-                        className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
-                    >
-                        View all
-                    </a>
+            {/* Charts Row */}
+            <div className="row g-4">
+                <div className="col-12 col-lg-6">
+                    <div className="card h-100">
+                        <div className="card-body d-flex flex-column" style={{ minHeight: '20rem' }}>
+                            <h5 className="card-title mb-4">Priority Distribution</h5>
+                            <PriorityDistribution priorityData={priorityDistribution} />
+                        </div>
+                    </div>
                 </div>
-                <RecentTickets data={recentTickets} />
+                <div className="col-12 col-lg-6">
+                    <div className="card h-100">
+                        <div className="card-body d-flex flex-column" style={{ minHeight: '20rem' }}>
+                            <h5 className="card-title mb-4">Category Distribution</h5>
+                            <CategoryDistribution categoryData={categoryDistribution} />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="col-12">
+                    <div className="card">
+                        <div className="card-body">
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                                <h5 className="mb-0">Recent Tickets</h5>
+                                <a href="/tickets" className="text-decoration-none">View all</a>
+                            </div>
+                            <RecentTickets recentTickets={dashboardData.recentTickets} />
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
