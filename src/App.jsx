@@ -15,6 +15,7 @@ import InboxMessages from "./pages/messaging/InboxMessages"
 import Role from "./pages/roles/Role"
 import ProtectedRoute from "./components/auth/ProtectedRoute"
 import Dashboard from "./pages/home/Dashboard"
+import ChatLayout from "./pages/messaging/ChatLayout"
 
 function App() {
   return (
@@ -43,7 +44,7 @@ function App() {
               <Route path="tags" element={<Tag />} />
               <Route path="assign" element={<AssignTicket />} />
               <Route path="prueba" element={<Prueba />} />
-              <Route path="messages" element={<InboxMessages />} />
+              <Route path="messages" element={<ChatLayout/>} />
               <Route path="roles" element={<Role />} />
             </Route>
 
