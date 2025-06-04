@@ -13,13 +13,11 @@ const TicketService = {
         // Crear FormData para manejar archivos
         const formData = new FormData();
 
-        // Agregar campos normales
         formData.append('title', data.title);
         formData.append('description', data.description);
         formData.append('priority_id', data.priority_id);
         formData.append('category_id', data.category_id);
 
-        // Agregar tags como array
         if (data.tags && data.tags.length > 0) {
             data.tags.forEach((tagId, index) => {
                 formData.append(`tags[${index}]`, tagId);
@@ -53,7 +51,7 @@ const TicketService = {
             };
         }
     },
-    
+
     updateStatus: (id, status) => {
         return apiService.request('put', `/tickets/${id}/status`, { status });
     },
@@ -62,13 +60,23 @@ const TicketService = {
         return apiService.request('get', `userTickets`);
     },
 
-    getOpenTickets: async () => {
+    getOpenTicketsWithAgents: async () => {
         return apiService.request('get', `openTickets`);
+    },
+
+    assignTicket: async (ticketId, agentId = null) => {
+        const payload = {};
+        
+        if (agentId !== null) {
+            payload.agent_id = agentId;
+        }
+
+        return apiService.request('put', `/assign-ticket/${ticketId}`, payload);
     },
 
     getReferenceData: async () => {
         return apiService.request('get', 'tickets-referenceData');
-    }
+    },
 };
 
 export default TicketService;
