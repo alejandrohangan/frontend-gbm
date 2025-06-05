@@ -5,7 +5,7 @@ import useEcho from '../../hooks/echo';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function ChatArea({
-    selectedUser,
+    selectedConversation,
     messages,
     messageInput,
     setMessageInput,
@@ -13,7 +13,7 @@ export function ChatArea({
     loading,
     onlineUsers,
     authUser,
-    onMessageReceived // Función para manejar mensajes recibidos
+    onMessageReceived
 }) {
     const messagesEndRef = useRef(null);
     const echo = useEcho();
@@ -30,14 +30,13 @@ export function ChatArea({
 
     // Listener de Echo para mensajes recibidos
     useEffect(() => {
-        if (!selectedUser || !echo || !contextAuthUser) {
+        if (!selectedConversation || !echo || !contextAuthUser) {
             return;
         }
 
         const channel = echo.private(`chat.${contextAuthUser.id}`);
 
         const handleMessageReceived = () => {
-            // Solo llamar a la función si es necesario
             if (onMessageReceived) {
                 onMessageReceived();
             }
@@ -48,7 +47,7 @@ export function ChatArea({
         return () => {
             channel.stopListening('.message.received');
         };
-    }, [selectedUser, echo, contextAuthUser, onMessageReceived]);
+    }, [selectedConversation, echo, contextAuthUser, onMessageReceived]);
 
     const handleKeyPress = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -57,7 +56,7 @@ export function ChatArea({
         }
     };
 
-    if (!selectedUser) {
+    if (!selectedConversation) {
         return (
             <div className="flex-fill d-flex align-items-center justify-content-center bg-light">
                 <div className="text-center">
@@ -72,7 +71,7 @@ export function ChatArea({
         );
     }
 
-    const isUserOnline = onlineUsers[selectedUser.id];
+    const isUserOnline = onlineUsers[selectedConversation.other_user_id];
 
     return (
         <>
@@ -86,7 +85,7 @@ export function ChatArea({
                                 height: '48px',
                                 background: 'linear-gradient(135deg, #60a5fa 0%, #a855f7 100%)'
                             }}>
-                            {selectedUser.name.charAt(0).toUpperCase()}
+                            {selectedConversation.other_user_name.charAt(0).toUpperCase()}
                         </div>
                         {isUserOnline && (
                             <div
@@ -101,7 +100,7 @@ export function ChatArea({
                         )}
                     </div>
                     <div>
-                        <h2 className="fw-semibold text-dark mb-0 h5">{selectedUser.name}</h2>
+                        <h2 className="fw-semibold text-dark mb-0 h5">{selectedConversation.other_user_name}</h2>
                         <p className={`small mb-0 ${isUserOnline ? 'text-success' : 'text-muted'}`}>
                             {isUserOnline ? "Online" : "Offline"}
                         </p>

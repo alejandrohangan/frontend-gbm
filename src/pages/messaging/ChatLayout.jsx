@@ -8,16 +8,16 @@ import { ChatArea } from '../../components/messaging/ChatArea';
 function ChatLayout() {
     const echo = useEcho();
     const { authUser } = useAuth();
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [localMessages, setLocalMessages] = useState([]); // Estado local para mensajes
+    const [selectedConversation, setSelectedConversation] = useState(null);
+    const [localMessages, setLocalMessages] = useState([]);
     const [messageInput, setMessageInput] = useState("");
-    const [users, setUsers] = useState([]);
+    const [conversations, setConversations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [messagesLoading, setMessagesLoading] = useState(false);
     const [onlineUsers, setOnlineUsers] = useState({});
 
     const sendMessage = async () => {
-        if (!selectedUser || !messageInput.trim()) return;
+        if (!selectedConversation || !messageInput.trim()) return;
 
         // Crear mensaje temporal para mostrar inmediatamente
         const tempMessage = {
@@ -35,7 +35,7 @@ function ChatLayout() {
         setMessageInput("");
 
         try {
-            await apiService.request("post", `/send-message/${selectedUser.id}`, {
+            await apiService.request("post", `/send-message/${selectedConversation.id}`, {
                 message: messageText
             });
 
@@ -62,13 +62,13 @@ function ChatLayout() {
     };
 
     const loadMessagesFromServer = async () => {
-        if (!selectedUser) return;
+        if (!selectedConversation) return;
 
         setMessagesLoading(true);
         try {
-            const response = await apiService.request("get", `/get-messages/${selectedUser.id}`);
+            const response = await apiService.request("get", `/get-messages/${selectedConversation.id}`);
             if (response) {
-                setLocalMessages(response); // Cargar mensajes al estado local
+                setLocalMessages(response);
             } else {
                 console.warn("No messages data received:", response);
                 setLocalMessages([]);
@@ -81,19 +81,19 @@ function ChatLayout() {
         }
     };
 
-    const getUsers = async () => {
+    const getConversations = async () => {
         setLoading(true);
         try {
-            const response = await apiService.request("get", `/get-users`);
+            const response = await apiService.request("get", `/get-conversations`);
             if (response) {
-                setUsers(response);
+                setConversations(response);
             } else {
                 console.error("Invalid API response structure:", response);
-                setUsers([]);
+                setConversations([]);
             }
         } catch (error) {
-            console.error("Error fetching users:", error);
-            setUsers([]);
+            console.error("Error fetching conversations:", error);
+            setConversations([]);
         } finally {
             setLoading(false);
         }
@@ -101,10 +101,10 @@ function ChatLayout() {
 
     // Función para agregar mensaje recibido via websocket
     const handleMessageReceived = async () => {
-        // En lugar de recargar todos los mensajes, obtenemos solo el nuevo mensaje
-        // O mejor aún, si el websocket envía el mensaje completo, lo agregamos directamente
+        if (!selectedConversation) return;
+        
         try {
-            const response = await apiService.request("get", `/get-messages/${selectedUser.id}`);
+            const response = await apiService.request("get", `/get-messages/${selectedConversation.id}`);
             if (response && response.length > localMessages.length) {
                 // Solo agregar mensajes nuevos
                 const newMessages = response.slice(localMessages.length);
@@ -115,19 +115,19 @@ function ChatLayout() {
         }
     };
 
-    // Cargar usuarios al inicio
+    // Cargar conversaciones al inicio
     useEffect(() => {
-        getUsers();
+        getConversations();
     }, []);
 
-    // Cargar mensajes cuando se selecciona un usuario (solo al cambiar conversación)
+    // Cargar mensajes cuando se selecciona una conversación
     useEffect(() => {
-        if (selectedUser) {
+        if (selectedConversation) {
             loadMessagesFromServer();
         } else {
-            setLocalMessages([]); // Limpiar mensajes cuando no hay usuario seleccionado
+            setLocalMessages([]);
         }
-    }, [selectedUser]);
+    }, [selectedConversation]);
 
     // Configurar Echo para detección de usuarios online
     useEffect(() => {
@@ -170,14 +170,14 @@ function ChatLayout() {
             {/* Sidebar */}
             <div className="col-md-4 col-lg-3 bg-white border-end d-flex flex-column" style={{ minWidth: '300px' }}>
                 <div className="p-3 bg-white border-bottom">
-                    <h1 className="h4 fw-bold text-dark mb-0">Mensajes</h1>
-                    <p className="text-muted small mb-0">Conversaciones recientes</p>
+                    <h1 className="h4 fw-bold text-dark mb-0">Conversaciones</h1>
+                    <p className="text-muted small mb-0">Tus chats activos</p>
                 </div>
 
                 <ConversationItem
-                    users={users}
-                    selectedUser={selectedUser}
-                    onUserSelect={setSelectedUser}
+                    conversations={conversations}
+                    selectedConversation={selectedConversation}
+                    onConversationSelect={setSelectedConversation}
                     loading={loading}
                     onlineUsers={onlineUsers}
                 />
@@ -186,15 +186,15 @@ function ChatLayout() {
             {/* Chat Area */}
             <div className="col d-flex flex-column" style={{ minWidth: 0 }}>
                 <ChatArea
-                    selectedUser={selectedUser}
-                    messages={localMessages} // Usar mensajes locales
+                    selectedConversation={selectedConversation}
+                    messages={localMessages}
                     messageInput={messageInput}
                     setMessageInput={setMessageInput}
                     onSendMessage={sendMessage}
                     loading={messagesLoading}
                     onlineUsers={onlineUsers}
                     authUser={authUser}
-                    onMessageReceived={handleMessageReceived} // Cambiar nombre para ser más claro
+                    onMessageReceived={handleMessageReceived}
                 />
             </div>
         </div>
