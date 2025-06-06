@@ -215,25 +215,37 @@ function ChatLayout() {
 
     return (
         <>
-            <div className="container-fluid h-100 d-flex" style={{ height: '90vh', maxHeight: '90vh' }}>
-                {/* Sidebar */}
-                <div className="col-md-4 col-lg-3 bg-white border-end d-flex flex-column" style={{ minWidth: '300px' }}>
-                    <div className="p-3 bg-white border-bottom">
+            {/* Cambio principal: usar vh y d-flex con altura fija */}
+            <div className="container-fluid d-flex" style={{ height: '90vh' }}>
+                {/* Sidebar - altura fija y scroll interno */}
+                <div
+                    className="bg-white border-end d-flex flex-column"
+                    style={{
+                        width: '300px',
+                        minWidth: '300px',
+                        height: '100%' // Altura completa del contenedor padre
+                    }}
+                >
+                    {/* Header fijo del sidebar */}
+                    <div className="p-3 bg-white border-bottom flex-shrink-0">
                         <h1 className="h4 fw-bold text-dark mb-0">Conversaciones</h1>
                         <p className="text-muted small mb-0">Tus chats activos</p>
                     </div>
 
-                    <ConversationItem
-                        conversations={conversations}
-                        selectedConversation={selectedConversation}
-                        onConversationSelect={setSelectedConversation}
-                        loading={loading}
-                        onlineUsers={onlineUsers}
-                    />
+                    {/* Lista de conversaciones con scroll */}
+                    <div className="flex-grow-1 overflow-auto">
+                        <ConversationItem
+                            conversations={conversations}
+                            selectedConversation={selectedConversation}
+                            onConversationSelect={setSelectedConversation}
+                            loading={loading}
+                            onlineUsers={onlineUsers}
+                        />
+                    </div>
                 </div>
 
-                {/* Chat Area */}
-                <div className="col d-flex flex-column" style={{ minWidth: 0 }}>
+                {/* Chat Area - ocupa el resto del espacio */}
+                <div className="flex-grow-1 d-flex flex-column" style={{ height: '100%', minWidth: 0 }}>
                     <ChatArea
                         selectedConversation={selectedConversation}
                         messages={localMessages}

@@ -4,7 +4,7 @@ import RoleService from '../../services/RoleService';
 import PermissionCard from '../../components/roles/PermissionCard';
 import toast from 'react-hot-toast';
 
-function ManageRole({ roleId, onClose }) {
+function ManageRole({ roleId, onClose, onRoleUpdated }) {
     const [formData, setFormData] = useState({ name: '', permissions: [] });
     const [permissions, setPermissions] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
@@ -69,8 +69,13 @@ function ManageRole({ roleId, onClose }) {
                 response = await RoleService.create(formData);
             }
 
-            if (response && (response.success || response.data)) {
+            if (response && response.message) {
                 toast.success(isEditing ? 'Rol actualizado correctamente' : 'Rol creado correctamente');
+                
+                if (onRoleUpdated) {
+                    await onRoleUpdated();
+                }
+                
                 onClose();
             } else if (response.errors) {
                 setErrors(response.errors);

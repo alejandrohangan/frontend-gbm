@@ -16,22 +16,28 @@ function Role() {
     const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchRoles = async () => {
-            try {
-                setLoading(true);
-                const rolesData = await RoleService.getAll();
-                setRoles(rolesData);
-            } catch (error) {
-                console.error('Error fetching roles:', error);
-                setRoles([]);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // ✅ Movemos fetchRoles fuera del useEffect y la hacemos una función regular
+    const fetchRoles = async () => {
+        try {
+            setLoading(true);
+            const rolesData = await RoleService.getAll();
+            setRoles(rolesData);
+        } catch (error) {
+            console.error('Error fetching roles:', error);
+            setRoles([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchRoles();
     }, []);
+
+    // ✅ Función para refrescar roles después de crear/editar
+    const handleRoleUpdated = async () => {
+        await fetchRoles();
+    };
 
     const openViewPermissionsModal = (role) => {
         setSelectedRole(role);
@@ -114,9 +120,11 @@ function Role() {
             case 'permissions':
                 return selectedRole ? <div>Aquí iría el componente de permisos</div> : null;
             case 'create':
-                return <ManageRole roleId={null} onClose={closeModal} />;
+                // ✅ Cambiamos onRefresh por onRoleUpdated
+                return <ManageRole roleId={null} onClose={closeModal} onRoleUpdated={handleRoleUpdated}/>;
             case 'edit':
-                return selectedRole ? <ManageRole roleId={selectedRole.id} onClose={closeModal} /> : null;
+                // ✅ Cambiamos onRefresh por onRoleUpdated
+                return selectedRole ? <ManageRole roleId={selectedRole.id} onClose={closeModal} onRoleUpdated={handleRoleUpdated}/> : null;
             default:
                 return null;
         }

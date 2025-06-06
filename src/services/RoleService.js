@@ -32,6 +32,18 @@ const RoleService = {
     getPermissions: async () => {
         return apiService.request('get', `get-permissions`)
     },
+
+    assignRole: async (roleId, userId) => {
+        return apiService.request('post', `/roles/${roleId}/assign`, {
+            user_id: userId
+        });
+    },
+
+    revokeRole: async (roleId, userId) => {
+        return apiService.request('post', `/roles/${roleId}/revoke`, {
+            user_id: userId
+        });
+    }
 };
 
 export default RoleService;

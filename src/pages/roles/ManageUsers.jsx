@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import RoleService from '../../services/RoleService';
-import { UserMinus, UserPlus } from 'lucide-react';
-import { Button } from 'react-bootstrap';
+import { UserMinus, UserPlus, Loader2 } from 'lucide-react';
 
 function ManageUsers({ roleId }) {
-
   const [users, setUsers] = useState([]);
   const [assignedUsers, setAssignedUsers] = useState([]);
   const [unassignedUsers, setUnassignedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState({}); // Para manejar loading individual de botones
 
   // useEffect para cargar los datos
   useEffect(() => {
@@ -41,8 +40,73 @@ function ManageUsers({ roleId }) {
     }
   }, [users]);
 
+  // Función para asignar rol
+  const handleAssignRole = async (userId) => {
+    const loadingKey = `assign_${userId}`;
+
+    try {
+      setActionLoading(prev => ({ ...prev, [loadingKey]: true }));
+
+      await RoleService.assignRole(roleId, userId);
+
+      // Actualizar estado local instantáneamente
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user.id === userId
+            ? { ...user, has_current_role: true }
+            : user
+        )
+      );
+
+      // Opcional: mostrar mensaje de éxito
+      console.log('Role assigned successfully');
+
+    } catch (error) {
+      console.error('Error assigning role:', error);
+      // Opcional: mostrar mensaje de error
+      alert('Error assigning role: ' + error.message);
+    } finally {
+      setActionLoading(prev => ({ ...prev, [loadingKey]: false }));
+    }
+  };
+
+  // Función para revocar rol
+  const handleRevokeRole = async (userId) => {
+    const loadingKey = `revoke_${userId}`;
+
+    try {
+      setActionLoading(prev => ({ ...prev, [loadingKey]: true }));
+
+      await RoleService.revokeRole(roleId, userId);
+
+      // Actualizar estado local instantáneamente
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user.id === userId
+            ? { ...user, has_current_role: false }
+            : user
+        )
+      );
+
+      // Opcional: mostrar mensaje de éxito
+      console.log('Role revoked successfully');
+
+    } catch (error) {
+      console.error('Error revoking role:', error);
+      // Opcional: mostrar mensaje de error
+      alert('Error revoking role: ' + error.message);
+    } finally {
+      setActionLoading(prev => ({ ...prev, [loadingKey]: false }));
+    }
+  };
+
   if (loading) {
-    return <div className="text-center py-4">Loading users...</div>;
+    return (
+      <div className="text-center py-4">
+        <Loader2 className="animate-spin mx-auto mb-2" size={32} />
+        <div>Loading users...</div>
+      </div>
+    );
   }
 
   return (
@@ -57,20 +121,19 @@ function ManageUsers({ roleId }) {
           {assignedUsers.length > 0 ? (
             <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
               {assignedUsers.map((user, index) => (
-                <div 
-                  key={user.id} 
-                  className={`d-flex align-items-center justify-content-between p-3 ${
-                    index < assignedUsers.length - 1 ? 'border-bottom' : ''
-                  }`}
-                  style={{ 
+                <div
+                  key={user.id}
+                  className={`d-flex align-items-center justify-content-between p-3 ${index < assignedUsers.length - 1 ? 'border-bottom' : ''
+                    }`}
+                  style={{
                     transition: 'background-color 0.2s',
                     cursor: 'default'
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <div className="d-flex align-items-center">
-                    <div 
+                    <div
                       className="rounded-circle d-flex align-items-center justify-content-center text-white me-3"
                       style={{
                         width: '32px',
@@ -87,14 +150,23 @@ function ManageUsers({ roleId }) {
                       <small className="text-muted">{user.email}</small>
                     </div>
                   </div>
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    className="d-flex align-items-center"
+                  <button
+                    className="btn btn-outline-danger btn-sm d-flex align-items-center"
+                    onClick={() => handleRevokeRole(user.id)}
+                    disabled={actionLoading[`revoke_${user.id}`]}
                   >
-                    <UserMinus size={16} className="me-1" />
-                    Revoke
-                  </Button>
+                    {actionLoading[`revoke_${user.id}`] ? (
+                      <>
+                        <Loader2 size={16} className="me-1 animate-spin" />
+                        Revoking...
+                      </>
+                    ) : (
+                      <>
+                        <UserMinus size={16} className="me-1" />
+                        Revoke
+                      </>
+                    )}
+                  </button>
                 </div>
               ))}
             </div>
@@ -116,20 +188,19 @@ function ManageUsers({ roleId }) {
           {unassignedUsers.length > 0 ? (
             <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
               {unassignedUsers.map((user, index) => (
-                <div 
-                  key={user.id} 
-                  className={`d-flex align-items-center justify-content-between p-3 ${
-                    index < unassignedUsers.length - 1 ? 'border-bottom' : ''
-                  }`}
-                  style={{ 
+                <div
+                  key={user.id}
+                  className={`d-flex align-items-center justify-content-between p-3 ${index < unassignedUsers.length - 1 ? 'border-bottom' : ''
+                    }`}
+                  style={{
                     transition: 'background-color 0.2s',
                     cursor: 'default'
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <div className="d-flex align-items-center">
-                    <div 
+                    <div
                       className="rounded-circle d-flex align-items-center justify-content-center text-white me-3"
                       style={{
                         width: '32px',
@@ -146,14 +217,23 @@ function ManageUsers({ roleId }) {
                       <small className="text-muted">{user.email}</small>
                     </div>
                   </div>
-                  <Button
-                    variant="outline-success"
-                    size="sm"
-                    className="d-flex align-items-center"
+                  <button
+                    className="btn btn-outline-success btn-sm d-flex align-items-center"
+                    onClick={() => handleAssignRole(user.id)}
+                    disabled={actionLoading[`assign_${user.id}`]}
                   >
-                    <UserPlus size={16} className="me-1" />
-                    Assign
-                  </Button>
+                    {actionLoading[`assign_${user.id}`] ? (
+                      <>
+                        <Loader2 size={16} className="me-1 animate-spin" />
+                        Assigning...
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus size={16} className="me-1" />
+                        Assign
+                      </>
+                    )}
+                  </button>
                 </div>
               ))}
             </div>

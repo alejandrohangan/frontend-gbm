@@ -92,7 +92,7 @@ export function ChatArea({
 
     if (!selectedConversation) {
         return (
-            <div className="flex-fill d-flex align-items-center justify-content-center bg-light">
+            <div className="h-100 d-flex align-items-center justify-content-center bg-light">
                 <div className="text-center">
                     <div className="d-flex align-items-center justify-content-center bg-secondary rounded-circle mx-auto mb-3"
                         style={{ width: '64px', height: '64px' }}>
@@ -108,9 +108,9 @@ export function ChatArea({
     const isUserOnline = onlineUsers[selectedConversation.other_user_id];
 
     return (
-        <>
-            {/* Chat Header */}
-            <div className="bg-white border-bottom p-3 shadow-sm">
+        <div className="h-100 d-flex flex-column">
+            {/* Header fijo */}
+            <div className="bg-white border-bottom p-3 shadow-sm flex-shrink-0">
                 <div className="d-flex align-items-center justify-content-between">
                     <div className="d-flex align-items-center">
                         <div className="position-relative me-3">
@@ -135,14 +135,16 @@ export function ChatArea({
                             )}
                         </div>
                         <div>
-                            <h2 className="fw-semibold text-dark mb-0 h5">{selectedConversation.other_user_name}</h2>
+                            <h2 className="fw-semibold text-dark mb-0 h5">
+                                {selectedConversation.ticket_title || `Ticket #${selectedConversation.ticket_id}`} - {selectedConversation.other_user_name}
+                            </h2>
                             <p className={`small mb-0 ${isUserOnline ? 'text-success' : 'text-muted'}`}>
                                 {isUserOnline ? "Online" : "Offline"}
                             </p>
                         </div>
                     </div>
 
-                    {/* Dropdown Menu */}
+                    {/* Dropdown menu */}
                     <div className="position-relative" ref={dropdownRef}>
                         <button
                             className="btn btn-link text-muted p-2"
@@ -203,11 +205,11 @@ export function ChatArea({
                 </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-fill overflow-auto p-3"
+            {/* Messages area - crece y tiene scroll */}
+            <div className="flex-grow-1 overflow-auto p-3"
                 style={{
-                    minHeight: 0,
-                    background: 'linear-gradient(to bottom, #f8f9fa, #e9ecef)'
+                    background: 'linear-gradient(to bottom, #f8f9fa, #e9ecef)',
+                    minHeight: 0 // Importante para flexbox
                 }}>
                 {loading ? (
                     <div className="d-flex align-items-center justify-content-center h-100">
@@ -231,8 +233,8 @@ export function ChatArea({
                 )}
             </div>
 
-            {/* Message Input */}
-            <div className="bg-white border-top p-3 shadow-sm">
+            {/* Message Input - fijo en la parte inferior */}
+            <div className="bg-white border-top p-3 shadow-sm flex-shrink-0">
                 <div className="d-flex align-items-end gap-3">
                     <div className="flex-fill">
                         <textarea
@@ -267,6 +269,6 @@ export function ChatArea({
                     </button>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
