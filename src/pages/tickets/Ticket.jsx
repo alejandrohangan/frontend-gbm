@@ -26,7 +26,15 @@ const Ticket = () => {
         { name: 'Estado', selector: row => row.status, sortable: true },
         { name: 'Prioridad', selector: row => row.priority?.name, sortable: true },
         { name: 'Solicitante', selector: row => <TruncatedTooltipText text={row.requester?.name} />, sortable: true },
-        { name: 'Agente', selector: row => <TruncatedTooltipText text={row.agent?.name} />, sortable: true },
+        {
+            name: 'Agente',
+            selector: row => (
+                <TruncatedTooltipText
+                    text={row.agent?.name || 'No asignado'}
+                />
+            ),
+            sortable: true
+        },
         { name: 'Categoria', selector: row => row.category?.name, sortable: true },
         {
             name: 'Acciones',

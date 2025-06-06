@@ -10,7 +10,6 @@ import { Toaster } from "react-hot-toast"
 import Login from "./pages/auth/Login"
 import { AuthProvider, useAuth } from "./contexts/AuthContext"
 import AssignTicket from "./pages/tickets/AssignTicket"
-import Prueba from "./pages/Prueba"
 import InboxMessages from "./pages/messaging/InboxMessages"
 import Role from "./pages/roles/Role"
 import ProtectedRoute from "./components/auth/ProtectedRoute"
@@ -43,7 +42,6 @@ function App() {
               <Route path="priorities" element={<Priority />} />
               <Route path="tags" element={<Tag />} />
               <Route path="assign" element={<AssignTicket />} />
-              <Route path="prueba" element={<Prueba />} />
               <Route path="messages" element={<ChatLayout/>} />
               <Route path="roles" element={<Role />} />
             </Route>

@@ -537,24 +537,24 @@ body {
   .md\:flex {
     display: flex;
   }
-  
+
   .md\:hidden {
     display: none;
   }
-  
+
   .md\:ml-0 {
     margin-left: 0;
   }
-  
+
   .md\:gap-2 {
     gap: 0.5rem;
   }
-  
+
   .md\:px-6 {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
-  
+
   .md\:w-64 {
     width: 16rem;
   }

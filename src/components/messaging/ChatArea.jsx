@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { Send } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { Send, MoreVertical, X, Info } from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
 import useEcho from '../../hooks/echo';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,11 +13,15 @@ export function ChatArea({
     loading,
     onlineUsers,
     authUser,
-    onMessageReceived
+    onMessageReceived,
+    onCloseTicket,
+    onViewDetails
 }) {
     const messagesEndRef = useRef(null);
     const echo = useEcho();
     const { authUser: contextAuthUser } = useAuth();
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -27,6 +31,20 @@ export function ChatArea({
         const timer = setTimeout(scrollToBottom, 100);
         return () => clearTimeout(timer);
     }, [messages]);
+
+    // Cerrar dropdown al hacer click fuera
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     // Listener de Echo para mensajes recibidos
     useEffect(() => {
@@ -56,6 +74,22 @@ export function ChatArea({
         }
     };
 
+    const handleCloseTicket = () => {
+        setShowDropdown(false);
+        if (onCloseTicket && selectedConversation) {
+            onCloseTicket(selectedConversation);
+        }
+    };
+
+    const handleViewDetails = () => {
+        setShowDropdown(false);
+        if (onViewDetails && selectedConversation) {
+            // Asumiendo que selectedConversation tiene un ticket_id o id del ticket
+            const ticketId = selectedConversation.ticket_id || selectedConversation.id;
+            onViewDetails(ticketId);
+        }
+    };
+
     if (!selectedConversation) {
         return (
             <div className="flex-fill d-flex align-items-center justify-content-center bg-light">
@@ -77,33 +111,94 @@ export function ChatArea({
         <>
             {/* Chat Header */}
             <div className="bg-white border-bottom p-3 shadow-sm">
-                <div className="d-flex align-items-center">
-                    <div className="position-relative me-3">
-                        <div className="rounded-circle d-flex align-items-center justify-content-center text-white fw-medium"
-                            style={{
-                                width: '48px',
-                                height: '48px',
-                                background: 'linear-gradient(135deg, #60a5fa 0%, #a855f7 100%)'
-                            }}>
-                            {selectedConversation.other_user_name.charAt(0).toUpperCase()}
-                        </div>
-                        {isUserOnline && (
-                            <div
-                                className="position-absolute bg-success border border-white rounded-circle"
+                <div className="d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center">
+                        <div className="position-relative me-3">
+                            <div className="rounded-circle d-flex align-items-center justify-content-center text-white fw-medium"
                                 style={{
-                                    width: '16px',
-                                    height: '16px',
-                                    bottom: '-2px',
-                                    right: '-2px'
-                                }}
-                            ></div>
-                        )}
+                                    width: '48px',
+                                    height: '48px',
+                                    background: 'linear-gradient(135deg, #60a5fa 0%, #a855f7 100%)'
+                                }}>
+                                {selectedConversation.other_user_name.charAt(0).toUpperCase()}
+                            </div>
+                            {isUserOnline && (
+                                <div
+                                    className="position-absolute bg-success border border-white rounded-circle"
+                                    style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        bottom: '-2px',
+                                        right: '-2px'
+                                    }}
+                                ></div>
+                            )}
+                        </div>
+                        <div>
+                            <h2 className="fw-semibold text-dark mb-0 h5">{selectedConversation.other_user_name}</h2>
+                            <p className={`small mb-0 ${isUserOnline ? 'text-success' : 'text-muted'}`}>
+                                {isUserOnline ? "Online" : "Offline"}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 className="fw-semibold text-dark mb-0 h5">{selectedConversation.other_user_name}</h2>
-                        <p className={`small mb-0 ${isUserOnline ? 'text-success' : 'text-muted'}`}>
-                            {isUserOnline ? "Online" : "Offline"}
-                        </p>
+
+                    {/* Dropdown Menu */}
+                    <div className="position-relative" ref={dropdownRef}>
+                        <button
+                            className="btn btn-link text-muted p-2"
+                            onClick={() => setShowDropdown(!showDropdown)}
+                            style={{
+                                border: 'none',
+                                background: 'none',
+                                fontSize: '16px'
+                            }}
+                        >
+                            <MoreVertical size={20} />
+                        </button>
+
+                        {showDropdown && (
+                            <div
+                                className="dropdown-menu dropdown-menu-end show position-absolute shadow-lg border-0"
+                                style={{
+                                    right: '0',
+                                    top: '100%',
+                                    minWidth: '200px',
+                                    zIndex: 1050,
+                                    borderRadius: '12px',
+                                    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)'
+                                }}
+                            >
+                                <button
+                                    className="dropdown-item d-flex align-items-center py-2 px-3 border-0 bg-transparent"
+                                    onClick={handleViewDetails}
+                                    style={{
+                                        transition: 'background-color 0.2s ease',
+                                        borderRadius: '8px',
+                                        margin: '4px'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <Info size={16} className="me-2 text-primary" />
+                                    <span className="text-dark">Ver detalles</span>
+                                </button>
+                                <div className="dropdown-divider my-1"></div>
+                                <button
+                                    className="dropdown-item d-flex align-items-center py-2 px-3 border-0 bg-transparent"
+                                    onClick={handleCloseTicket}
+                                    style={{
+                                        transition: 'background-color 0.2s ease',
+                                        borderRadius: '8px',
+                                        margin: '4px'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#fef2f2'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                >
+                                    <X size={16} className="me-2 text-danger" />
+                                    <span className="text-danger">Cerrar ticket</span>
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

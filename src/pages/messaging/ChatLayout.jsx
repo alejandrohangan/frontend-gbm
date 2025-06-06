@@ -2,8 +2,13 @@ import React, { useEffect, useState } from 'react';
 import useEcho from '../../hooks/echo';
 import { useAuth } from '../../contexts/AuthContext';
 import apiService from '../../services/apiService';
+import TicketService from '../../services/TicketService';
 import ConversationItem from '../../components/messaging/ConversationItem';
 import { ChatArea } from '../../components/messaging/ChatArea';
+import CustomModal from '../../components/CustomModal';
+import ViewTicket from '../tickets/ViewTicket';
+import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 function ChatLayout() {
     const echo = useEcho();
@@ -15,6 +20,10 @@ function ChatLayout() {
     const [loading, setLoading] = useState(true);
     const [messagesLoading, setMessagesLoading] = useState(false);
     const [onlineUsers, setOnlineUsers] = useState({});
+
+    // Estados para el modal de detalles del ticket
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectedTicketId, setSelectedTicketId] = useState(null);
 
     const sendMessage = async () => {
         if (!selectedConversation || !messageInput.trim()) return;
@@ -102,7 +111,7 @@ function ChatLayout() {
     // Función para agregar mensaje recibido via websocket
     const handleMessageReceived = async () => {
         if (!selectedConversation) return;
-        
+
         try {
             const response = await apiService.request("get", `/get-messages/${selectedConversation.id}`);
             if (response && response.length > localMessages.length) {
@@ -113,6 +122,45 @@ function ChatLayout() {
         } catch (error) {
             console.error("Error fetching new messages:", error);
         }
+    };
+
+    // Función para cerrar ticket
+    const handleCloseTicket = async (conversation) => {
+        try {
+            const result = await Swal.fire({
+                title: "¿Estás seguro?",
+                text: "Esta acción cerrará el ticket asociado a esta conversación",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, cerrar",
+                cancelButtonText: "Cancelar",
+            });
+
+            if (result.isConfirmed) {
+                // Asumiendo que el ticket_id está en la conversación
+                const ticketId = conversation.ticket_id || conversation.id;
+                const response = await TicketService.close(ticketId);
+
+                if (response.success) {
+                    toast.success('Ticket cerrado correctamente');
+                    // Actualizar las conversaciones
+                    getConversations();
+                } else {
+                    toast.error('No se pudo cerrar el ticket');
+                }
+            }
+        } catch (error) {
+            console.error('Error closing ticket:', error);
+            toast.error('Error al procesar la solicitud');
+        }
+    };
+
+    // Función para ver detalles del ticket
+    const handleViewDetails = (ticketId) => {
+        setSelectedTicketId(ticketId);
+        setShowViewModal(true);
     };
 
     // Cargar conversaciones al inicio
@@ -166,38 +214,52 @@ function ChatLayout() {
     }, [echo]);
 
     return (
-        <div className="container-fluid h-100 d-flex" style={{ height: '90vh', maxHeight: '90vh' }}>
-            {/* Sidebar */}
-            <div className="col-md-4 col-lg-3 bg-white border-end d-flex flex-column" style={{ minWidth: '300px' }}>
-                <div className="p-3 bg-white border-bottom">
-                    <h1 className="h4 fw-bold text-dark mb-0">Conversaciones</h1>
-                    <p className="text-muted small mb-0">Tus chats activos</p>
+        <>
+            <div className="container-fluid h-100 d-flex" style={{ height: '90vh', maxHeight: '90vh' }}>
+                {/* Sidebar */}
+                <div className="col-md-4 col-lg-3 bg-white border-end d-flex flex-column" style={{ minWidth: '300px' }}>
+                    <div className="p-3 bg-white border-bottom">
+                        <h1 className="h4 fw-bold text-dark mb-0">Conversaciones</h1>
+                        <p className="text-muted small mb-0">Tus chats activos</p>
+                    </div>
+
+                    <ConversationItem
+                        conversations={conversations}
+                        selectedConversation={selectedConversation}
+                        onConversationSelect={setSelectedConversation}
+                        loading={loading}
+                        onlineUsers={onlineUsers}
+                    />
                 </div>
 
-                <ConversationItem
-                    conversations={conversations}
-                    selectedConversation={selectedConversation}
-                    onConversationSelect={setSelectedConversation}
-                    loading={loading}
-                    onlineUsers={onlineUsers}
-                />
+                {/* Chat Area */}
+                <div className="col d-flex flex-column" style={{ minWidth: 0 }}>
+                    <ChatArea
+                        selectedConversation={selectedConversation}
+                        messages={localMessages}
+                        messageInput={messageInput}
+                        setMessageInput={setMessageInput}
+                        onSendMessage={sendMessage}
+                        loading={messagesLoading}
+                        onlineUsers={onlineUsers}
+                        authUser={authUser}
+                        onMessageReceived={handleMessageReceived}
+                        onCloseTicket={handleCloseTicket}
+                        onViewDetails={handleViewDetails}
+                    />
+                </div>
             </div>
 
-            {/* Chat Area */}
-            <div className="col d-flex flex-column" style={{ minWidth: 0 }}>
-                <ChatArea
-                    selectedConversation={selectedConversation}
-                    messages={localMessages}
-                    messageInput={messageInput}
-                    setMessageInput={setMessageInput}
-                    onSendMessage={sendMessage}
-                    loading={messagesLoading}
-                    onlineUsers={onlineUsers}
-                    authUser={authUser}
-                    onMessageReceived={handleMessageReceived}
-                />
-            </div>
-        </div>
+            {/* Modal para ver detalles del ticket */}
+            <CustomModal
+                show={showViewModal}
+                handleClose={() => setShowViewModal(false)}
+                title={`Detalles del Ticket #${selectedTicketId}`}
+                size="xl"
+            >
+                <ViewTicket ticketId={selectedTicketId} />
+            </CustomModal>
+        </>
     );
 }
 
