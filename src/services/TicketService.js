@@ -3,7 +3,6 @@ import GenericService from "./GenericService";
 
 const TicketService = {
     getAll: () => GenericService.getAll("/tickets"),
-    update: (id, data) => GenericService.update("/tickets", id, data),
     delete: (id) => GenericService.delete("/tickets", id),
     getById: async (id) => {
         return await GenericService.getById("/tickets", id);
@@ -38,6 +37,24 @@ const TicketService = {
         });
     },
 
+    // Método update corregido en TicketService
+    update: async (id, data) => {
+        // Para updates, enviamos datos como JSON en lugar de FormData
+        const updateData = {
+            title: data.title,
+            description: data.description,
+            priority_id: data.priority_id,
+            category_id: data.category_id,
+            tags: data.tags || []
+        };
+
+        return apiService.request('put', `tickets/${id}`, updateData, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+    },
+
     close: async (id) => {
         try {
             const result = await apiService.request("put", `/tickets/${id}/close`);
@@ -66,7 +83,7 @@ const TicketService = {
 
     assignTicket: async (ticketId, agentId = null) => {
         const payload = {};
-        
+
         if (agentId !== null) {
             payload.agent_id = agentId;
         }

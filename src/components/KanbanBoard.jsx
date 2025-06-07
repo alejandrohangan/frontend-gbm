@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import KanbanColumn from "./KanbanColumn";
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, DragOverlay, rectIntersection } from '@dnd-kit/core';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { COLUMNS } from '../utils/kanbanUtils';
 import TicketService from '../services/TicketService';
 import toast from 'react-hot-toast';
+import KanbanCard from './KanbanCard';
 
 function KanbanBoard({ initialTickets, onTicketStatusChange }) {
   // Estado local para manejar los tickets mientras se actualiza la base de datos
   const [localTickets, setLocalTickets] = useState(initialTickets);
+  const [activeTicket, setActiveTicket] = useState(null);
 
   // Actualizar el estado local cuando cambien las props
   useEffect(() => {
@@ -18,14 +21,16 @@ function KanbanBoard({ initialTickets, onTicketStatusChange }) {
     return <div className="text-center p-4">No hay tickets disponibles</div>;
   }
 
-  const ticketsPerColumn = COLUMNS.map(column =>
-    localTickets.filter(ticket => ticket.status === column.id).length
-  );
-
-  const maxCards = Math.max(...ticketsPerColumn);
+  const handleDragStart = (event) => {
+    const { active } = event;
+    const ticket = localTickets.find(t => t.id === parseInt(active.id));
+    setActiveTicket(ticket);
+  };
 
   const handleDragEnd = async (event) => {
     const { active, over } = event;
+    
+    setActiveTicket(null);
 
     if (!over) return;
 
@@ -78,21 +83,40 @@ function KanbanBoard({ initialTickets, onTicketStatusChange }) {
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      <div className="row g-4 justify-content-between">
+    <DndContext 
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      collisionDetection={rectIntersection}
+      modifiers={[restrictToWindowEdges]}
+    >
+      <div 
+        className="d-flex gap-4 pb-3"
+        style={{
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          minHeight: '850px' // Aumentamos para acomodar las columnas más altas
+        }}
+      >
         {COLUMNS.map((column) => (
-          <div key={column.id} className="col">
+          <div key={column.id} style={{ flexShrink: 0 }}>
             <KanbanColumn
               id={column.id}
               title={column.title}
               tickets={localTickets.filter(ticket =>
                 ticket.status === column.id
               )}
-              maxCards={maxCards}
             />
           </div>
         ))}
       </div>
+      
+      <DragOverlay>
+        {activeTicket ? (
+          <div style={{ transform: 'rotate(5deg)' }}>
+            <KanbanCard ticket={activeTicket} />
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }

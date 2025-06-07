@@ -8,6 +8,7 @@ function KanbanCard({ ticket }) {
             case "Alta": return "#fb923c";
             case "Media": return "#60a5fa";
             case "Baja": return "#4ade80";
+            default: return "#6c757d";
         }
     };
 
@@ -16,11 +17,11 @@ function KanbanCard({ ticket }) {
     });
 
     const style = {
-        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+        // Removemos la transformación manual ya que DragOverlay se encarga
         borderLeft: `4px solid ${getBorderColor()}`,
-        opacity: isDragging ? 0.5 : 1,
-        zIndex: isDragging ? 1000 : 1,
-        cursor: 'grab'
+        opacity: isDragging ? 0.3 : 1, // Más transparente cuando se arrastra
+        cursor: isDragging ? 'grabbing' : 'grab',
+        transition: isDragging ? 'none' : 'opacity 0.2s ease'
     };
 
     return (

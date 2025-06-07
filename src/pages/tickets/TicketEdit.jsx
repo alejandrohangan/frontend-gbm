@@ -31,7 +31,11 @@ function TicketEdit({ show = false, onClose, ticketId = null, onSave }) {
 
     const fetchData = async () => {
         try {
-            setIsLoading(true);
+            // Solo mostrar loading si estamos editando (necesitamos cargar datos del ticket)
+            if (ticketId) {
+                setIsLoading(true);
+            }
+
             const response = await TicketService.getReferenceData();
 
             setCategories(response.categories || []);
@@ -49,7 +53,7 @@ function TicketEdit({ show = false, onClose, ticketId = null, onSave }) {
                         category_id: ticket.category?.id || '',
                         description: ticket.description || '',
                         tags: ticket.tags?.map(tag => tag.id) || [],
-                        attachments: []
+                        attachments: [] // No mostramos archivos existentes en edición
                     });
                 }
             } else {
@@ -60,7 +64,10 @@ function TicketEdit({ show = false, onClose, ticketId = null, onSave }) {
             console.error('Error loading data:', error);
             toast.error('Error al cargar los datos');
         } finally {
-            setIsLoading(false);
+            // Solo ocultar loading si estábamos en modo edición
+            if (ticketId) {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -174,21 +181,40 @@ function TicketEdit({ show = false, onClose, ticketId = null, onSave }) {
         try {
             let response;
             if (isEditing) {
-                response = await TicketService.update(ticketId, formData);
+                // Para update, enviamos solo los campos básicos sin archivos
+                const updateData = {
+                    title: formData.title.trim(),
+                    priority_id: parseInt(formData.priority_id),
+                    category_id: parseInt(formData.category_id),
+                    description: formData.description.trim(),
+                    tags: formData.tags
+                };
+
+                console.log('Sending update data:', updateData); // Debug
+                response = await TicketService.update(ticketId, updateData);
             } else {
+                // Para create, enviamos todo incluyendo archivos
                 response = await TicketService.create(formData);
             }
+
+            console.log('Response:', response); // Debug
 
             if (response && (response.success || response.data)) {
                 toast.success(isEditing ? 'Ticket actualizado correctamente' : 'Ticket creado correctamente');
                 if (onSave) onSave();
                 onClose();
             } else if (response.errors) {
+                console.log('Validation errors:', response.errors);
                 setErrors(response.errors);
             }
         } catch (error) {
+            console.log('Error details:', error); // Debug
+
             if (error.response?.data?.errors) {
+                console.log('Backend validation errors:', error.response.data.errors);
                 setErrors(error.response.data.errors);
+            } else if (error.response?.data?.message) {
+                setErrors({ general: error.response.data.message });
             } else {
                 setErrors({ general: 'Error al guardar el ticket' });
             }
@@ -232,7 +258,7 @@ function TicketEdit({ show = false, onClose, ticketId = null, onSave }) {
                     </div>
 
                     <div className="modal-body">
-                        {isLoading ? (
+                        {isLoading && isEditing ? (
                             <div className="d-flex justify-content-center align-items-center p-4">
                                 <div className="spinner-border text-primary" role="status">
                                     <span className="visually-hidden">Cargando...</span>
@@ -358,84 +384,96 @@ function TicketEdit({ show = false, onClose, ticketId = null, onSave }) {
                                     )}
                                 </div>
 
-                                <div className="mb-3">
-                                    <label className="form-label">
-                                        Archivos Adjuntos ({formData.attachments.length}/{MAX_FILES})
-                                    </label>
+                                {/* Solo mostrar la sección de archivos si NO estamos editando */}
+                                {!isEditing && (
+                                    <div className="mb-3">
+                                        <label className="form-label">
+                                            Archivos Adjuntos ({formData.attachments.length}/{MAX_FILES})
+                                        </label>
 
-                                    {formData.attachments.length > 0 && (
-                                        <div className="mb-3">
-                                            {formData.attachments.map((file, index) => (
-                                                <div key={index} className="bg-light p-3 rounded mb-2">
-                                                    <div className="d-flex align-items-center justify-content-between">
-                                                        <div className="d-flex align-items-center">
-                                                            <div className="bg-secondary rounded d-flex align-items-center justify-content-center me-3"
-                                                                style={{ width: '40px', height: '40px' }}>
-                                                                <FileText size={20} className="text-white" />
+                                        {formData.attachments.length > 0 && (
+                                            <div className="mb-3">
+                                                {formData.attachments.map((file, index) => (
+                                                    <div key={index} className="bg-light p-3 rounded mb-2">
+                                                        <div className="d-flex align-items-center justify-content-between">
+                                                            <div className="d-flex align-items-center">
+                                                                <div className="bg-secondary rounded d-flex align-items-center justify-content-center me-3"
+                                                                    style={{ width: '40px', height: '40px' }}>
+                                                                    <FileText size={20} className="text-white" />
+                                                                </div>
+                                                                <div>
+                                                                    <div className="fw-medium">{file.name}</div>
+                                                                    <small className="text-muted">
+                                                                        {formatFileSize(file.size)}
+                                                                    </small>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <div className="fw-medium">{file.name}</div>
-                                                                <small className="text-muted">
-                                                                    {formatFileSize(file.size)}
-                                                                </small>
-                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeAttachment(index)}
+                                                                className="btn btn-sm btn-outline-danger"
+                                                                disabled={isLoading}
+                                                            >
+                                                                <X size={16} />
+                                                            </button>
                                                         </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeAttachment(index)}
-                                                            className="btn btn-sm btn-outline-danger"
-                                                            disabled={isLoading}
-                                                        >
-                                                            <X size={16} />
-                                                        </button>
                                                     </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {canAddMoreFiles && (
-                                        <div
-                                            className={`border border-2 border-dashed rounded p-4 text-center ${isDragging ? 'border-primary bg-light' : 'border-secondary'}`}
-                                            onDragOver={handleDragOver}
-                                            onDragLeave={handleDragLeave}
-                                            onDrop={handleFileDrop}
-                                        >
-                                            <div className="d-flex flex-column align-items-center">
-                                                <Upload className="text-muted mb-2" size={24} />
-                                                <p className="text-muted mb-1">
-                                                    Arrastre archivos aquí o{' '}
-                                                    <label className="text-primary" style={{ cursor: 'pointer' }}>
-                                                        seleccione archivos
-                                                        <input
-                                                            type="file"
-                                                            onChange={handleFileChange}
-                                                            className="d-none"
-                                                            disabled={isLoading}
-                                                            multiple
-                                                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.zip,.txt"
-                                                        />
-                                                    </label>
-                                                </p>
-                                                <small className="text-muted">
-                                                    Máximo {MAX_FILES - formData.attachments.length} archivo(s) más • 10MB por archivo
-                                                </small>
+                                                ))}
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    {!canAddMoreFiles && (
-                                        <div className="alert alert-info">
-                                            <small>Has alcanzado el límite máximo de {MAX_FILES} archivos</small>
-                                        </div>
-                                    )}
+                                        {canAddMoreFiles && (
+                                            <div
+                                                className={`border border-2 border-dashed rounded p-4 text-center ${isDragging ? 'border-primary bg-light' : 'border-secondary'}`}
+                                                onDragOver={handleDragOver}
+                                                onDragLeave={handleDragLeave}
+                                                onDrop={handleFileDrop}
+                                            >
+                                                <div className="d-flex flex-column align-items-center">
+                                                    <Upload className="text-muted mb-2" size={24} />
+                                                    <p className="text-muted mb-1">
+                                                        Arrastre archivos aquí o{' '}
+                                                        <label className="text-primary" style={{ cursor: 'pointer' }}>
+                                                            seleccione archivos
+                                                            <input
+                                                                type="file"
+                                                                onChange={handleFileChange}
+                                                                className="d-none"
+                                                                disabled={isLoading}
+                                                                multiple
+                                                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.zip,.txt"
+                                                            />
+                                                        </label>
+                                                    </p>
+                                                    <small className="text-muted">
+                                                        Máximo {MAX_FILES - formData.attachments.length} archivo(s) más • 10MB por archivo
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        )}
 
-                                    {errors.attachments && (
-                                        <div className="text-danger mt-2 small">
-                                            {Array.isArray(errors.attachments) ? errors.attachments[0] : errors.attachments}
-                                        </div>
-                                    )}
-                                </div>
+                                        {!canAddMoreFiles && (
+                                            <div className="alert alert-info">
+                                                <small>Has alcanzado el límite máximo de {MAX_FILES} archivos</small>
+                                            </div>
+                                        )}
+
+                                        {errors.attachments && (
+                                            <div className="text-danger mt-2 small">
+                                                {Array.isArray(errors.attachments) ? errors.attachments[0] : errors.attachments}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Mensaje informativo cuando estamos editando */}
+                                {isEditing && (
+                                    <div className="alert alert-info">
+                                        <small>
+                                            <strong>Nota:</strong> Los archivos adjuntos no se pueden modificar durante la edición del ticket.
+                                        </small>
+                                    </div>
+                                )}
                             </form>
                         )}
                     </div>
