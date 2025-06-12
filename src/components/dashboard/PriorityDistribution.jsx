@@ -1,10 +1,7 @@
 import React from 'react';
 
 export const PriorityDistribution = ({ priorityData = [] }) => {
-    // Calcular el total
     const total = priorityData.reduce((sum, item) => sum + item.count, 0);
-
-    // Color único para todas las barras (como en tu ejemplo original)
     const barColor = '#6267f1';
 
     return (

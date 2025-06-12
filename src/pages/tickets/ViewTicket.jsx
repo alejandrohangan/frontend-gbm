@@ -174,13 +174,28 @@ const ViewTicket = ({ ticketId, onClose }) => {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        try {
+            if (!dateString) return 'Fecha no disponible';
+            
+            const date = new Date(dateString);
+            
+            if (isNaN(date.getTime())) {
+                return 'Fecha inválida';
+            }
+
+            const options = {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+
+            return new Intl.DateTimeFormat('es-ES', options).format(date);
+        } catch (error) {
+            console.error('Error al formatear fecha:', error);
+            return 'Error al formatear fecha';
+        }
     };
 
     if (loading) {
@@ -297,20 +312,6 @@ const ViewTicket = ({ ticketId, onClose }) => {
                                     <small className="text-muted fw-medium d-block mb-2">Categoría</small>
                                     <span className="fw-medium text-gray-900">{ticket.category?.name}</span>
                                 </div>
-                                <div className="mb-4">
-                                    <small className="text-muted fw-medium d-flex align-items-center mb-2">
-                                        <Calendar size={14} className="me-1" />
-                                        Fecha de creación
-                                    </small>
-                                    <span className="fw-medium text-gray-900">{formatDate(ticket.createdAt)}</span>
-                                </div>
-                                <div>
-                                    <small className="text-muted fw-medium d-flex align-items-center mb-2">
-                                        <Clock size={14} className="me-1" />
-                                        Última actualización
-                                    </small>
-                                    <span className="fw-medium text-gray-900">{formatDate(ticket.updatedAt)}</span>
-                                </div>
                             </div>
                         </div>
 
@@ -338,19 +339,25 @@ const ViewTicket = ({ ticketId, onClose }) => {
                                 </div>
                                 <div>
                                     <small className="text-muted fw-medium d-block mb-3">Agente Asignado</small>
-                                    <div className="d-flex align-items-center">
-                                        <div className="bg-green-50 rounded-circle d-flex align-items-center justify-content-center me-3"
-                                            style={{ width: '40px', height: '40px' }}>
-                                            <User size={16} className="text-green-600" />
+                                    {ticket.agent ? (
+                                        <div className="d-flex align-items-center">
+                                            <div className="bg-green-50 rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                style={{ width: '40px', height: '40px' }}>
+                                                <User size={16} className="text-green-600" />
+                                            </div>
+                                            <div>
+                                                <div className="fw-medium text-gray-900">{ticket.agent.name}</div>
+                                                <small className="text-muted d-flex align-items-center">
+                                                    <Mail size={12} className="me-1" />
+                                                    {ticket.agent.email}
+                                                </small>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div className="fw-medium text-gray-900">{ticket.agent?.name}</div>
-                                            <small className="text-muted d-flex align-items-center">
-                                                <Mail size={12} className="me-1" />
-                                                {ticket.agent?.email}
-                                            </small>
+                                    ) : (
+                                        <div className="text-muted">
+                                            <small>Agente no asignado</small>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
