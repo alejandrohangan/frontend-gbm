@@ -124,7 +124,7 @@ function ChatLayout() {
         }
     };
 
-    // Función para cerrar ticket
+    // Función para cerrar ticket (compartida entre ChatArea y ConversationItem)
     const handleCloseTicket = async (conversation) => {
         try {
             const result = await Swal.fire({
@@ -145,6 +145,14 @@ function ChatLayout() {
 
                 if (response.success) {
                     toast.success('Ticket cerrado correctamente');
+                    
+                    // Si el ticket cerrado es el de la conversación actualmente seleccionada,
+                    // deseleccionar la conversación
+                    if (selectedConversation && selectedConversation.id === conversation.id) {
+                        setSelectedConversation(null);
+                        setLocalMessages([]);
+                    }
+                    
                     // Actualizar las conversaciones
                     getConversations();
                 } else {

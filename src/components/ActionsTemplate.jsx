@@ -1,7 +1,7 @@
 import React from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-const ActionsTemplate = ({ ticket, onView, onSet, onEdit, onDelete, onClose, hasDelete, hasClose, hasView }) => {
+const ActionsTemplate = ({ ticket, onView, onSet, onEdit, onDelete, onClose, hasDelete, hasClose, hasView, hasEdit = true }) => {
     const handleView = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -22,7 +22,6 @@ const ActionsTemplate = ({ ticket, onView, onSet, onEdit, onDelete, onClose, has
         if (onDelete) onDelete(ticket.id);
     };
 
-
     const handleClose = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -42,14 +41,16 @@ const ActionsTemplate = ({ ticket, onView, onSet, onEdit, onDelete, onClose, has
                 </button>
             )}
 
-            <button
-                className="btn btn-outline-secondary btn-sm action-button"
-                title="Editar ticket"
-                onClick={handleEdit}
-                type="button"
-            >
-                <i className="bi bi-pencil"></i>
-            </button>
+            {hasEdit && (
+                <button
+                    className="btn btn-outline-secondary btn-sm action-button"
+                    title="Editar ticket"
+                    onClick={handleEdit}
+                    type="button"
+                >
+                    <i className="bi bi-pencil"></i>
+                </button>
+            )}
 
             {hasDelete && (
                 <button

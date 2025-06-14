@@ -1,6 +1,12 @@
 import React from 'react';
 
-function ConversationItem({ conversations, selectedConversation, onConversationSelect, loading, onlineUsers }) {
+function ConversationItem({ 
+  conversations, 
+  selectedConversation, 
+  onConversationSelect, 
+  loading, 
+  onlineUsers
+}) {
   if (loading) {
     return (
       <div className="h-100 overflow-auto">
@@ -28,6 +34,8 @@ function ConversationItem({ conversations, selectedConversation, onConversationS
       </div>
     );
   }
+
+
 
   return (
     <div className="h-100 overflow-auto">

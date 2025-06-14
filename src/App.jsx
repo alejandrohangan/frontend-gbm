@@ -13,6 +13,7 @@ import AssignTicket from "./pages/tickets/AssignTicket"
 import InboxMessages from "./pages/messaging/InboxMessages"
 import Role from "./pages/roles/Role"
 import ProtectedRoute from "./components/auth/ProtectedRoute"
+import RoleProtectedRoute from "./components/auth/RoleProtectedRoute"
 import Dashboard from "./pages/home/Dashboard"
 import ChatLayout from "./pages/messaging/ChatLayout"
 
@@ -37,13 +38,54 @@ function App() {
               {/* Dashboard como ruta por defecto después del login */}
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
+              
+              {/* Rutas accesibles solo para admin y agent */}
+              <Route
+                path="categories"
+                element={
+                  <RoleProtectedRoute allowedRoles={['admin', 'agent']}>
+                    <Category />
+                  </RoleProtectedRoute>
+                }
+              />
+              <Route
+                path="priorities"
+                element={
+                  <RoleProtectedRoute allowedRoles={['admin', 'agent']}>
+                    <Priority />
+                  </RoleProtectedRoute>
+                }
+              />
+              <Route
+                path="tags"
+                element={
+                  <RoleProtectedRoute allowedRoles={['admin', 'agent']}>
+                    <Tag />
+                  </RoleProtectedRoute>
+                }
+              />
+              <Route
+                path="assign"
+                element={
+                  <RoleProtectedRoute allowedRoles={['admin', 'agent']}>
+                    <AssignTicket />
+                  </RoleProtectedRoute>
+                }
+              />
+
+              {/* Rutas accesibles solo para admin */}
+              <Route
+                path="roles"
+                element={
+                  <RoleProtectedRoute allowedRoles={['admin']}>
+                    <Role />
+                  </RoleProtectedRoute>
+                }
+              />
+
+              {/* Rutas accesibles para todos los usuarios autenticados */}
               <Route path="tickets" element={<Ticket />} />
-              <Route path="categories" element={<Category />} />
-              <Route path="priorities" element={<Priority />} />
-              <Route path="tags" element={<Tag />} />
-              <Route path="assign" element={<AssignTicket />} />
               <Route path="messages" element={<ChatLayout/>} />
-              <Route path="roles" element={<Role />} />
             </Route>
 
             {/* Capturar cualquier otra URL */}

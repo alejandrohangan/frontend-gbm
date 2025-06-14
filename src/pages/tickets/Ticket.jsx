@@ -47,6 +47,7 @@ const Ticket = () => {
                         setShowViewMode(true);
                     }}
                     hasView={true}
+                    hasEdit={false} // Removido el icono de editar
                     hasClose={true}
                     onClose={() => handleClose(row.id)}
                 />
@@ -171,6 +172,7 @@ const Ticket = () => {
 
             {layoutMode === 'list' ? (
                 <div className="card p-4 shadow-sm border-0">
+                    {/* Barra de búsqueda solo en vista lista */}
                     <div className="mb-3">
                         <InputGroup>
                             <InputGroup.Text>
@@ -200,21 +202,8 @@ const Ticket = () => {
                     />
                 </div>
             ) : (
+                // Vista Kanban sin barra de búsqueda
                 <>
-                    <div className="mb-3">
-                        <InputGroup>
-                            <InputGroup.Text>
-                                <Search />
-                            </InputGroup.Text>
-                            <Form.Control
-                                type="text"
-                                placeholder="Buscar tickets..."
-                                value={searchTerm}
-                                onChange={handleSearch}
-                            />
-                        </InputGroup>
-                    </div>
-
                     {loading ? (
                         <div className="text-center p-4">Cargando tickets...</div>
                     ) : (
